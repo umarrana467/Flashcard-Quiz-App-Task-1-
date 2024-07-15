@@ -1,0 +1,193 @@
+flutter create flashcard_quiz_app
+cd flashcard_quiz_app
+flutter create flashcard_quiz_app
+cd flashcard_quiz_app
+import 'package:flutter/material.dart';
+import '../models/flashcard.dart';
+
+class FlashcardWidget extends StatefulWidget {
+  final Flashcard flashcard;
+
+  FlashcardWidget({required this.flashcard});
+
+  @override
+  _FlashcardWidgetState createState() => _FlashcardWidgetState();
+}
+
+class _FlashcardWidgetState extends State<FlashcardWidget> {
+  bool _showAnswer = false;
+
+  void _toggleCard() {
+    setState(() {
+      _showAnswer = !_showAnswer;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggleCard,
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Text(
+              _showAnswer ? widget.flashcard.answer : widget.flashcard.question,
+              style: TextStyle(fontSize: 24.0),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+import '../models/flashcard.dart';
+import '../widgets/flashcard_widget.dart';
+
+class FlashcardListScreen extends StatelessWidget {
+  final List<Flashcard> flashcards = [
+    Flashcard(question: 'What is Flutter?', answer: 'A UI toolkit for building natively compiled applications.'),
+    Flashcard(question: 'Who developed Flutter?', answer: 'Google.'),
+    Flashcard(question: 'What language is used to write Flutter apps?', answer: 'Dart.'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flashcard Quiz App'),
+      ),
+      body: ListView.builder(
+        itemCount: flashcards.length,
+        itemBuilder: (context, index) {
+          return FlashcardWidget(flashcard: flashcards[index]);
+        },
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+import 'screens/flashcard_list_screen.dart';
+
+void main() {
+  runApp(FlashcardQuizApp());
+}
+
+class FlashcardQuizApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flashcard Quiz App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: FlashcardListScreen(),
+    );
+  }
+}
+flutter run
+import 'package:flutter/material.dart';
+import '../models/flashcard.dart';
+
+class AddFlashcardScreen extends StatefulWidget {
+  final Function(Flashcard) onAddFlashcard;
+
+  AddFlashcardScreen({required this.onAddFlashcard});
+
+  @override
+  _AddFlashcardScreenState createState() => _AddFlashcardScreenState();
+}
+
+class _AddFlashcardScreenState extends State<AddFlashcardScreen> {
+  final _questionController = TextEditingController();
+  final _answerController = TextEditingController();
+
+  void _submit() {
+    final question = _questionController.text;
+    final answer = _answerController.text;
+
+    if (question.isNotEmpty && answer.isNotEmpty) {
+      widget.onAddFlashcard(Flashcard(question: question, answer: answer));
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Flashcard'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _questionController,
+              decoration: InputDecoration(labelText: 'Question'),
+            ),
+            TextField(
+              controller: _answerController,
+              decoration: InputDecoration(labelText: 'Answer'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submit,
+              child: Text('Add Flashcard'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+import 'package:flutter/material.dart';
+import '../models/flashcard.dart';
+import '../widgets/flashcard_widget.dart';
+import 'add_flashcard_screen.dart';
+
+class FlashcardListScreen extends StatefulWidget {
+  @override
+  _FlashcardListScreenState createState() => _FlashcardListScreenState();
+}
+
+class _FlashcardListScreenState extends State<FlashcardListScreen> {
+  final List<Flashcard> _flashcards = [
+    Flashcard(question: 'What is Flutter?', answer: 'A UI toolkit for building natively compiled applications.'),
+    Flashcard(question: 'Who developed Flutter?', answer: 'Google.'),
+    Flashcard(question: 'What language is used to write Flutter apps?', answer: 'Dart.'),
+  ];
+
+  void _addFlashcard(Flashcard flashcard) {
+    setState(() {
+      _flashcards.add(flashcard);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flashcard Quiz App'),
+      ),
+      body: ListView.builder(
+        itemCount: _flashcards.length,
+        itemBuilder: (context, index) {
+          return FlashcardWidget(flashcard: _flashcards[index]);
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => AddFlashcardScreen(onAddFlashcard: _addFlashcard),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+flutter run
